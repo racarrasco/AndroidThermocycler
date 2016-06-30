@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">PCR Droid</string>
+    <string name="buttonTemp">Temp</string>
+    <string name="buttonClear">clear</string>
+    <string name="buttonParameters">Set Parameters</string>
+    <string name="buttonLEDOff">LED OFF</string>
+    <string name="buttonFan_On">Fan on</string>
+    <string name="buttonFan_Off">Fan off</string>
+    <string name="button_Run">Start</string>
+    <string name= "button_Stop">Stop</string>
+    <string name="set_your_desired_parameters_TextView">set your desired parameters</string>
+
+    <string name="preheat_text_view">1st Preheat</string>
+
+    <string name="denature_Text_View">Denature</string>
+    <string name="Time_Text_View">Time(s): </string>
+    <string name="extension_Text_View">Extension</string>
+    <string name="Temp_Text_View">Temp(C): </string>
+    <string name="annealing_Text_View">Annealing</string>
+    <string name="preheat_1PID_Text_View">Preheat 1PID</string>
+    <string name="preheat_2PID_Text_View">Preheat 2PID</string>
+    <string name="kp">Kp:</string>
+    <string name="ki">Ki:</string>
+    <string name="kd">Kd:</string>
+    <string name="denaturePID_Text_View">Denature PID</string>
+    <string name="annealingPID_Text_View">AnnealingPID</string>
+    <string name="extensionPID_Text_View">Extension PID</string>
+    <string name="pre_cool_Text_View">Pre-cool</string>
+    <string name="button_fan_on_text">Fan on</string>
+    <string name="button_fan_off_text">Fan off</string>
+
+
+</resources>
