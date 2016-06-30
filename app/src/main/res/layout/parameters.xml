@@ -7,7 +7,7 @@
     android:gravity="center"
     android:paddingLeft="12dp"
     android:paddingTop="12dp"
-    tools:context="com.example.rigo_carrasco.androidhandler.MainActivity"
+    tools:context="com.example.rigo_carrasco.androidthermocycler.MainActivity"
     android:paddingRight="12dp">
 
 
@@ -40,6 +40,38 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingTop="40dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Controls"
+                android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_fan_on_text"
+                    android:id="@+id/buttonFanOn"
+                    android:onClick="onClickFanOn"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_fan_off_text"
+                    android:id="@+id/buttonFanOff"
+                    android:onClick=""/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LED ON"
+                    android:id="@+id/buttonLEDOn"/>
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LED OFF"
+                    android:id="@+id/buttonLEDOff"/>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -73,7 +105,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/switchPrecool"
                     android:onClick="onSwitchOn"
-                    android:textOn="enabled"/>
+                   />
 
             </LinearLayout>
 
@@ -116,7 +148,7 @@
             <Switch
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="enabled"
+
                 android:id="@+id/switchFirstPreheat"
                 android:onClick="onSwitchOn"/>
 
@@ -156,7 +188,7 @@
                 <Switch
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textOn="enabled"
+
                     android:id="@+id/switchSecondPreheat"
                     android:onClick="onSwitchOn"/>
 
@@ -274,7 +306,7 @@
                <Switch
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:textOn="enabled"
+
                    android:id="@+id/switchExtension"
                    android:onClick="onSwitchOn"/>
 

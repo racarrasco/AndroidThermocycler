@@ -1,5 +1,4 @@
-package com.example.rigo_carrasco.androidhandler;
-import android.app.Activity;
+package com.example.rigo_carrasco.androidthermocycler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;

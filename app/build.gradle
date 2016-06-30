@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.0"
 
     defaultConfig {
-        applicationId "com.example.rigo_carrasco.androidhandler"
+        applicationId "com.example.rigo_carrasco.androidthermocycler"
         minSdkVersion 16
         targetSdkVersion 24
         versionCode 1

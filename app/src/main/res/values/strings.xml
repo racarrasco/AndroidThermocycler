@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PCR Droid</string>
+    <string name="app_name">Android Thermocycler</string>
     <string name="buttonTemp">Temp</string>
     <string name="buttonClear">clear</string>
     <string name="buttonParameters">Set Parameters</string>

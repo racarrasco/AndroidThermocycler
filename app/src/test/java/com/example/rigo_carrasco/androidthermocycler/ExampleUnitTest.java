@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidhandler;
+package com.example.rigo_carrasco.androidthermocycler;
 
 import org.junit.Test;
 
