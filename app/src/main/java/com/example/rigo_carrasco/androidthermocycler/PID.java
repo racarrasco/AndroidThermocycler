@@ -55,25 +55,16 @@ public class PID extends AppCompatActivity {
         finish();
     }
 
-    public void onClickToControl(View view) {
+
+    public void onBackPressed() {
         for (int i=0; i<pids.length; i++) {
             values[i+12] = String.valueOf(pids[i].getText());
         }
         String [] numbers = values;
-        Intent ControlIntent = new Intent(this,Controls.class);
-        ControlIntent.putExtra("values",numbers);
-        startActivity(ControlIntent);
-
-
-    }
-    public void onClickToParameters(View view) {
-        for (int i=0; i<pids.length; i++) {
-            values[i+12] = String.valueOf(pids[i].getText());
-        }
-        String [] numbers = values;
-        Intent parametersIntent = new Intent(this,ParametersScreen.class);
-        parametersIntent.putExtra("values",numbers);
-        startActivity(parametersIntent);
+        Intent mainActivityIntent = new Intent(this,MainActivity.class);
+        mainActivityIntent.putExtra("values",numbers);
+        setResult(RESULT_OK,mainActivityIntent);
+        finish();
 
 
     }

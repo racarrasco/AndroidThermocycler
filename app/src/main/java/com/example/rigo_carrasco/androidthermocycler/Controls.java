@@ -14,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
@@ -27,7 +28,7 @@ import java.util.Set;
 public class Controls extends AppCompatActivity {
     Button mainButton, parButton, pIDButton,controlButton, fanOnButton,fanOffButton,lEDOnButton,lEDOffButton,
     getTempButton;
-    EditText currentTemperature;
+    TextView currentTemperature;
 
     String[] values;
 
@@ -108,11 +109,6 @@ public class Controls extends AppCompatActivity {
         unregisterReceiver(mUsbReceiver);
         unbindService(usbConnection);
 
-        String [] theValues = values;
-        Intent backToMainIntent = new Intent(this,MainActivity.class);
-        backToMainIntent.putExtra("values",theValues);
-        setResult(RESULT_OK,backToMainIntent);
-        finish();
     }
 
 
@@ -138,8 +134,8 @@ public class Controls extends AppCompatActivity {
 
 
 
-        currentTemperature = (EditText) findViewById(R.id.EditTextGetTemp);
-        currentTemperature.setEnabled(false);
+        currentTemperature = (TextView) findViewById(R.id.EditTextGetTemp);
+
 
 
         Intent theValues = getIntent();
@@ -213,6 +209,13 @@ public class Controls extends AppCompatActivity {
 
 
     public void onClickBackToMain(View view) {
+        Intent backToMainIntent = new Intent(this,MainActivity.class);
+        String [] theValues = values;
+        backToMainIntent.putExtra("values",theValues);
+        setResult(RESULT_OK,backToMainIntent);
+        finish();
+    }
+    public void onBackPressed() {
         Intent backToMainIntent = new Intent(this,MainActivity.class);
         String [] theValues = values;
         backToMainIntent.putExtra("values",theValues);
