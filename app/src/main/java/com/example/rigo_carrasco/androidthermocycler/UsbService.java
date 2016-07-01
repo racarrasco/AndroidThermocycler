@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidhandler;
+package com.example.rigo_carrasco.androidthermocycler;
 
 import android.app.Service;
 
@@ -6,8 +6,7 @@ import android.app.Service;
  * Created by Rigo_Carrasco on 6/17/2016. This is the USB Service created by felhr on GitHub
  */
     import android.app.PendingIntent;
-    import android.app.Service;
-    import android.content.BroadcastReceiver;
+import android.content.BroadcastReceiver;
     import android.content.Context;
     import android.content.Intent;
     import android.content.IntentFilter;

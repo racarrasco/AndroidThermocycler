@@ -1,5 +1,4 @@
-package com.example.rigo_carrasco.androidhandler;
-import android.app.Activity;
+package com.example.rigo_carrasco.androidthermocycler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -32,8 +31,10 @@ public class ParametersScreen extends AppCompatActivity {
 
 
     EditText [] dataET;
-    String [] data = new String [28];
+
     TextView timeTempTextView;
+
+    String [] values;
 
 
 
@@ -47,7 +48,7 @@ public class ParametersScreen extends AppCompatActivity {
         firstPreheatSwitch = (Switch) findViewById(R.id.switchFirstPreheat);
         secondPreheatSwitch = (Switch) findViewById(R.id.switchSecondPreheat);
         extensionSwitch = (Switch) findViewById(R.id.switchExtension);
-        setParametersButton = (Button) findViewById(R.id.buttonParameters);
+        setParametersButton = (Button) findViewById(R.id.buttonToParameters);
         preCoolSwitch = (Switch) findViewById(R.id.switchPrecool);
 
 
@@ -72,13 +73,9 @@ public class ParametersScreen extends AppCompatActivity {
                                  (EditText) findViewById(R.id.editTextDenature0),      (EditText) findViewById(R.id.editTextDenature1),
                                  (EditText) findViewById(R.id.editTextAnnealing0),     (EditText) findViewById(R.id.editTextAnnealing1),
                                  (EditText) findViewById(R.id.editTextExtension0),     (EditText) findViewById(R.id.editTextExtension1),
-                (EditText) findViewById(R.id.editTextNumberOfCycles), //EditText[11],
-                (EditText) findViewById(R.id.editTextFirstPreheatPID0), (EditText) findViewById(R.id.editTextFirstPreheatPID1), (EditText) findViewById(R.id.editTextFirstPreheatPID2),
-                (EditText) findViewById(R.id.editTextSecondPreheatPID0),(EditText) findViewById(R.id.editTextSecondPreheatPID1),(EditText) findViewById(R.id.editTextSecondPreheatPID2),
-                (EditText) findViewById(R.id.editTextDenaturePID0), (EditText) findViewById(R.id.editTextDenaturePID1),(EditText) findViewById(R.id.editTextDenaturePID2),
-                (EditText) findViewById(R.id.editTextAnnealingPID0), (EditText) findViewById(R.id.editTextAnnealingPID1),(EditText) findViewById(R.id.editTextAnnealingPID2),
-                (EditText) findViewById(R.id.editTextExtensionPID0), (EditText) findViewById(R.id.editTextExtensionPID1),(EditText) findViewById(R.id.editTextExtensionPID2)};
-        String [] values;
+                (EditText) findViewById(R.id.editTextNumberOfCycles) //EditText[11],
+                };
+
 
         Intent mainactivityvalues = getIntent();
         values = mainactivityvalues.getStringArrayExtra("values");
@@ -182,27 +179,46 @@ public class ParametersScreen extends AppCompatActivity {
 
         }
 
-    public void onClickSetParameters(View view) { //Goes back to the run activity with the set parameters
+    public void onClickBackToMain(View view) { //Goes back to the run activity with the set parameters
         for (int i=0; i<dataET.length; i++) {
-            data[i] = String.valueOf(dataET[i].getText());
+            values[i] = String.valueOf(dataET[i].getText());
         }
-        data[27] = String.valueOf(timeTempTextView.getText());
-        String [] numbers = data;
-        Intent mainActivityIntent = new Intent();
-        mainActivityIntent.putExtra("data",numbers);
+        values[27] = String.valueOf(timeTempTextView.getText());
+        String [] numbers = values;
+        Intent mainActivityIntent = new Intent(this,MainActivity.class);
+        mainActivityIntent.putExtra("values",numbers);
         setResult(RESULT_OK,mainActivityIntent);
         finish();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        for (int i=0; i<dataET.length; i++) {
+            values[i] = String.valueOf(dataET[i].getText());
+        }
+        Intent gotomain = new Intent();
+        gotomain.putExtra("values",values);
+        setResult(RESULT_OK,gotomain);
+        finish();
+    }
+
+
     public void onBackPressed(){
         for (int i=0; i<dataET.length; i++) {
-            data[i] = String.valueOf(dataET[i].getText());
+            values[i] = String.valueOf(dataET[i].getText());
 
         }
-        String [] numbers = data;
+        String [] numbers = values;
         Intent a = new Intent();
-        a.putExtra("data",numbers);
+        a.putExtra("values",numbers);
         setResult(RESULT_OK,a);
         finish();
     }
+
+
+
+
+
+
 }

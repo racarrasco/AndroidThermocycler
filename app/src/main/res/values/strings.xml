@@ -1,14 +1,16 @@
 <resources>
-    <string name="app_name">PCR Droid</string>
+    <string name="app_name">Android Thermocycler</string>
     <string name="buttonTemp">Temp</string>
     <string name="buttonClear">clear</string>
-    <string name="buttonParameters">Set Parameters</string>
+    <string name="buttonParameters">Par.</string>
+    <string name="buttonMain">Main</string>
+    <string name="buttonPID">PID</string>
+    <string name="buttonControl">cntrl</string>
     <string name="buttonLEDOff">LED OFF</string>
     <string name="buttonFan_On">Fan on</string>
     <string name="buttonFan_Off">Fan off</string>
     <string name="button_Run">Start</string>
     <string name= "button_Stop">Stop</string>
-    <string name="set_your_desired_parameters_TextView">set your desired parameters</string>
 
     <string name="preheat_text_view">1st Preheat</string>
 
@@ -28,6 +30,7 @@
     <string name="pre_cool_Text_View">Pre-cool</string>
     <string name="button_fan_on_text">Fan on</string>
     <string name="button_fan_off_text">Fan off</string>
+    <string name="current_temperature_textview">Current Temperature :</string>
 
 
 </resources>

@@ -4,6 +4,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/buttonMain"
+            android:id="@+id/buttonBackToMainActivity"
+            android:onClick="onClickBackToMain"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/buttonParameters"
+            android:id="@+id/buttonToParameters"
+            android:onClick="onClickToParameters"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/buttonPID"
+            android:id="@+id/buttonToPID"
+            android:onClick="onClickToPID"
+            />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/buttonControl"
+            android:id="@+id/buttonToControl"
+            android:onClick="onClickToControl"
+            />
+    </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
         android:layout_width="match_parent"
@@ -23,47 +56,33 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             >
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation = "horizontal">
 
-                <Button
-                    android:layout_width="170dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/buttonClear"
-                    android:id="@+id/buttonClear"
-                    android:onClick="onClickClear"
-                    />
-
-                <Button
-                    android:layout_width="170dp"
-                    android:layout_height="wrap_content"
-                    android:text="@string/buttonParameters"
-                    android:id="@+id/buttonParameters"
-                    android:onClick="onClickParameters"
-                    />
-            </LinearLayout>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation= "horizontal">
 
                 <Button
-                    android:layout_width="170dp"
+                    android:layout_width="114dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/buttonRun"
                     android:text="@string/button_Run"
                     android:onClick="onClickRun"
                     android:textColor="@color/colorStart"/>
                 <Button
-                    android:layout_width="170dp"
+                    android:layout_width="114dp"
                     android:layout_height="wrap_content"
                     android:id= "@+id/buttonStop"
                     android:text = "@string/button_Stop"
                     android:textColor="@color/colorStop"
                     android:onClick="onClickStop"/>
-
+                <Button
+                    android:layout_width="114dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/buttonClear"
+                    android:id="@+id/buttonClear"
+                    android:onClick="onClickClear"
+                    />
             </LinearLayout>
 
 
@@ -75,7 +94,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Number of cycles:"
-                    android:paddingBottom="10dp"
+                    android:paddingBottom="5dp"
                     android:textStyle="bold"/>
                 <TextView
                     android:layout_width="80dp"
@@ -90,7 +109,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
+                    android:paddingBottom="5dp"
                     android:text="Current Cycle : "
                     android:textStyle="bold"/>
                 <TextView
@@ -105,8 +124,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:text="Current Temperature : "
+                    android:paddingBottom="5dp"
+                    android:text="@string/current_temperature_textview"
                     android:textStyle="bold"/>
                 <TextView
                     android:layout_width="80dp"
