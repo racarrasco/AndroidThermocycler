@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity  {
@@ -82,7 +83,7 @@ public class MainActivity extends AppCompatActivity  {
     private UsbService usbService;
     private TextView textView;
     String[] parametersActivity;
-    Button clearButton, runButton;
+    Button clearButton, runButton,controlButton;
     TextView cycles,temperature,current_cycle;
 
 
@@ -123,6 +124,8 @@ public class MainActivity extends AppCompatActivity  {
         cycles = (TextView) findViewById(R.id.editTextNumberOfCycles);
         temperature = (TextView) findViewById(R.id.textViewCurrentTemperature);
         current_cycle = (TextView) findViewById(R.id.textViewCurrentCycle);
+        controlButton = (Button) findViewById(R.id.buttonToControl);
+
 
 
 
@@ -256,11 +259,15 @@ public class MainActivity extends AppCompatActivity  {
         List<Map<String, Object>> cmd = encodecmd(parametersActivity);//encode commands for the arduino
         tvSet(current_cycle,Integer.toString(1));
         Run(cmd);
+        controlButton.setEnabled(false);
+
         runplot();
     }
     public void onClickStop(View view) {
         pushcmd("P\n");
         tvAppend(textView,"\nStopping");
+        controlButton.setEnabled(true);
+        runButton.setEnabled(true);
     }
 
     public void runplot() {
@@ -359,6 +366,10 @@ public class MainActivity extends AppCompatActivity  {
                }
                 chart.notifyDataSetChanged();
                 chart.invalidate();
+
+                if(runButton.isEnabled()) {
+                    runButton.setEnabled(false);
+                }
             }
     }
 
@@ -455,6 +466,8 @@ public class MainActivity extends AppCompatActivity  {
                             dtime.clear();
                             dtemp.clear();
                             mActivity.get().current_cycle.setText("Done/ended");
+                            mActivity.get().controlButton.setEnabled(true);
+                            mActivity.get().runButton.setEnabled(true);
                         }
                     }
                     else{
@@ -479,35 +492,54 @@ public class MainActivity extends AppCompatActivity  {
         }
     }
 
-    public void onClickParameters(View view) { //Takes user to another screen to set the parameters for thermal cycling
+    public void onClickToParameters(View view) { //Takes user to another screen to set the parameters for thermal cycling
         Intent parametersScreenIntent = new Intent(this, ParametersScreen.class);
         final int result = 1;
         String [] theValues = parametersActivity;
         parametersScreenIntent.putExtra("values",theValues);
-        /*First visit to the parameters screen
+        /*First visit to the parameters screens
         are default parameters, once the parameters are set, they will be saved and the
         user will be able to refer to the screen*/
         startActivityForResult(parametersScreenIntent,result);
     }
+    public void onClickToPID(View view) {
+        Intent pIDScreenIntent = new Intent(this,PID.class);
+        final int result = 1;
+        String [] theValues = parametersActivity;
+        pIDScreenIntent.putExtra("values",theValues);
+        startActivityForResult(pIDScreenIntent,result);
+    }
+    public void onClickToControl(View view) {
+        Intent controlScreenIntent = new Intent(this,Controls.class);
+        final int result = 1;
+        String [] theValues = parametersActivity;
+        controlScreenIntent.putExtra("values",theValues);
+        startActivityForResult(controlScreenIntent,result);
+    }
+    public void onClickBackToMain(View view) {
+
+    }
+
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) { //sets the paramaters once the users goes back to this screen
         super.onActivityResult(requestCode, resultCode, data);
-        parametersActivity = data.getStringArrayExtra("data"); //Using the same fields allow
+
+
+        parametersActivity = data.getStringArrayExtra("values"); //Using the same fields allow
         //for a "Save" feature in parameters
 
+
         runButton.setEnabled(true);
-        tvAppend(textView, "\nParameters Set!");
         cycles.setText(parametersActivity[11]);
 
     }
 
-
     public List<Map<String, Object>> encodecmd(String[] parameters) {
         //Encode the paramaters into commands for arduino
-        int loopcut = 1; //This is for the arduino to cycle through some commands, because there are some commands that only need to be done
-        //once the program initiates such as preheat, precool...
+        int loopcut = 1; //This is for the arduino to cycle through some commands because there are some commands that only need to be done
+        //at the beginning of the run  such as preheat, precool...
         int[] encoded = new int[parameters.length-1];
         for (int i = 0; i < encoded.length; i++) {
             if (parameters[i].isEmpty()) {

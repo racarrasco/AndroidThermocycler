@@ -27,6 +27,12 @@
         <activity android:name="com.example.rigo_carrasco.androidthermocycler.ParametersScreen"
             android:label="Get Parameters"
             android:theme="@style/AppTheme"/>
+        <activity android:name="com.example.rigo_carrasco.androidthermocycler.Controls"
+            android:label="Controls"
+            android:theme="@style/AppTheme"/>
+        <activity android:name="com.example.rigo_carrasco.androidthermocycler.PID"
+            android:label="Set PID"
+            android:theme="@style/AppTheme"/>
 
 
         <meta-data

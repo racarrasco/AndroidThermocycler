@@ -1,77 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center"
-    android:paddingLeft="12dp"
-    android:paddingTop="12dp"
+
     tools:context="com.example.rigo_carrasco.androidthermocycler.MainActivity"
-    android:paddingRight="12dp">
+    >
 
-
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/set_your_desired_parameters_TextView"
-        android:id="@+id/setDesiredParametersTextView"/>
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:text="Set Parameters"
-        android:id="@+id/buttonBackToMainActivity"
-        android:onClick="onClickSetParameters"/>
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/buttonMain"
+            android:id="@+id/buttonBackToMainActivity"
+            android:onClick="onClickBackToMain"/>
+
+    </LinearLayout>
+
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:scrollbars="vertical"
-        android:fillViewport="true"
-        android:layout_below="@+id/setDesiredParametersTextView"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true">
+        android:fillViewport="true">
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="40dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Controls"
-                android:textStyle="bold"/>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/button_fan_on_text"
-                    android:id="@+id/buttonFanOn"
-                    android:onClick="onClickFanOn"/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/button_fan_off_text"
-                    android:id="@+id/buttonFanOff"
-                    android:onClick=""/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="LED ON"
-                    android:id="@+id/buttonLEDOn"/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="LED OFF"
-                    android:id="@+id/buttonLEDOff"/>
-            </LinearLayout>
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
+            android:paddingTop="12dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -313,6 +274,7 @@
 
 
            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -332,309 +294,10 @@
                     />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    >
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/preheat_1PID_Text_View"
-                        android:textStyle="bold"/>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/kp"
-                            android:paddingBottom="10dp"/>
-                        <EditText
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:id="@+id/editTextFirstPreheatPID0"
-                            />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/ki"
-                            android:paddingBottom="10dp"/>
-                        <EditText
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:id="@+id/editTextFirstPreheatPID1"/>
-                            </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/kd"
-                            android:paddingBottom="10dp"/>
-                        <EditText
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:id="@+id/editTextFirstPreheatPID2"/>
-                        </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingStart="90dp"
-                    android:paddingLeft="90dp">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/preheat_2PID_Text_View"
-                        android:textStyle="bold"/>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/kp"
-                            android:paddingBottom="10dp"/>
-                        <EditText
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:id="@+id/editTextSecondPreheatPID0"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/ki"
-                            android:paddingBottom="10dp"/>
-                        <EditText
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:id="@+id/editTextSecondPreheatPID1"/>
-                    </LinearLayout>
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/kd"
-                            android:paddingBottom="10dp"/>
-                        <EditText
-                            android:layout_width="40dp"
-                            android:layout_height="wrap_content"
-                            android:inputType="numberDecimal"
-                            android:id="@+id/editTextSecondPreheatPID2"/>
-                    </LinearLayout>
-
-                    </LinearLayout>
-            </LinearLayout>
 
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/denaturePID_Text_View"
-                    android:textStyle="bold"/>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/kp"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextDenaturePID0"/>
-                </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ki"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextDenaturePID1"/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/kd"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextDenaturePID2"/>
-                </LinearLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingStart="90dp"
-                android:paddingLeft="90dp">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/annealingPID_Text_View"
-                    android:textStyle="bold"/>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/kp"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextAnnealingPID0"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ki"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextAnnealingPID1"/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/kd"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextAnnealingPID2"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/extensionPID_Text_View"
-                    android:textStyle="bold"/>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/kp"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextExtensionPID0"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/ki"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextExtensionPID1"/>
-                </LinearLayout>
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/kd"
-                        android:paddingBottom="10dp"/>
-                    <EditText
-                        android:layout_width="40dp"
-                        android:layout_height="wrap_content"
-                        android:inputType="numberDecimal"
-                        android:id="@+id/editTextExtensionPID2"/>
-                </LinearLayout>
-            </LinearLayout>
 
 
 
@@ -643,4 +306,4 @@
 
 
     </ScrollView>
-</RelativeLayout>
+</LinearLayout>
