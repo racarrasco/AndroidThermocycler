@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Android Thermocycler</string>
     <string name="buttonTemp">Temp</string>
-    <string name="buttonClear">clear</string>
+    <string name="buttonClear">Clear</string>
     <string name="buttonParameters">Par.</string>
     <string name="buttonMain">Main</string>
     <string name="buttonPID">PID</string>

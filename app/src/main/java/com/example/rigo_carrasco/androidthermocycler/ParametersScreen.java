@@ -141,6 +141,7 @@ public class ParametersScreen extends AppCompatActivity {
                 case R.id.switchFirstPreheat:
                     if (checked) {
                         setUiEnabled(true,1);
+
                     }
                     else {
                         setUiEnabled(false, 1);
@@ -150,6 +151,7 @@ public class ParametersScreen extends AppCompatActivity {
                 case R.id.switchSecondPreheat:
                     if(checked){
                         setUiEnabled(true,3);
+
                     }
                     else{
                         setUiEnabled(false,3);
@@ -159,6 +161,7 @@ public class ParametersScreen extends AppCompatActivity {
                 case R.id.switchExtension:
                     if (checked) {
                         setUiEnabled(true,9);
+
                     }
                     else{
                         setUiEnabled(false,9);

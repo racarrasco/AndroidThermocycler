@@ -1,6 +1,7 @@
 package com.example.rigo_carrasco.androidthermocycler;
 
 
+import android.content.ActivityNotFoundException;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 
@@ -18,11 +19,14 @@ import android.os.IBinder;
 import android.os.Message;
 
 
+
 import android.view.View;
 
+import android.view.WindowManager;
 import android.widget.Button;
 
 
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.github.mikephil.charting.charts.LineChart;
@@ -30,6 +34,9 @@ import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.highlight.Highlight;
+
+
 
 
 import com.github.mikephil.charting.data.LineData;
@@ -38,16 +45,20 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 
+import java.io.File;
+import java.io.IOException;
 
 import java.lang.ref.WeakReference;
+
 
 import java.util.ArrayList;
 
 import java.util.HashMap;
 import java.util.List;
+
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Set;
+
 
 public class MainActivity extends AppCompatActivity  {
     /*
@@ -59,7 +70,7 @@ public class MainActivity extends AppCompatActivity  {
             switch (intent.getAction()) {
                 case UsbService.ACTION_USB_PERMISSION_GRANTED: // USB PERMISSION GRANTED
                     Toast.makeText(context, "USB Ready", Toast.LENGTH_SHORT).show();
-                    runButton.setEnabled(false);
+                    runButton.setEnabled(true);
                     break;
                 case UsbService.ACTION_USB_PERMISSION_NOT_GRANTED: // USB PERMISSION NOT GRANTED
                     Toast.makeText(context, "USB Permission not granted", Toast.LENGTH_SHORT).show();
@@ -80,11 +91,17 @@ public class MainActivity extends AppCompatActivity  {
             }
         }
     };
-    private UsbService usbService;
-    private TextView textView;
-    String[] parametersActivity;
-    Button clearButton, runButton,controlButton;
+    private UsbService usbService; //usb service does the reading and writing from serial
+    private TextView textView; //notifications from the app
+    String[] parametersActivity; //parameters for thermocycling
+    Button clearButton, runButton,controlButton, sendDataButton;
     TextView cycles,temperature,current_cycle;
+    EditText FILENAME;
+    ArrayList<Float> overallTemp = new ArrayList<>();
+    ArrayList<Float> overallTime = new ArrayList<>();
+    File cacheFile = null;
+
+
 
 
 
@@ -100,7 +117,7 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
-    private MyHandler mHandler;
+    private MyHandler mHandler; //handler for the usb service
     private final ServiceConnection usbConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName arg0, IBinder arg1) {
@@ -120,11 +137,15 @@ public class MainActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_main);
 
 
+
         mHandler = new MyHandler(this);
         cycles = (TextView) findViewById(R.id.editTextNumberOfCycles);
         temperature = (TextView) findViewById(R.id.textViewCurrentTemperature);
         current_cycle = (TextView) findViewById(R.id.textViewCurrentCycle);
         controlButton = (Button) findViewById(R.id.buttonToControl);
+        sendDataButton = (Button) findViewById(R.id.buttonSendData);
+        FILENAME = (EditText) findViewById(R.id.filenameEditText);
+
 
 
 
@@ -139,11 +160,11 @@ public class MainActivity extends AppCompatActivity  {
 
 
         parametersActivity[11] = "30";
-        parametersActivity[5] = "90";
+        parametersActivity[5] = "65";
         parametersActivity[6] = "0";
-        parametersActivity[7]  = "68";
+        parametersActivity[7]  = "45";
         parametersActivity [8] = "0";
-        String kp = "10";
+        String kp = "7";
         String ki = "2";
         String kd = "1";
         for (int h=0;h<5; h++){
@@ -153,13 +174,6 @@ public class MainActivity extends AppCompatActivity  {
             parametersActivity[14+3*h] = kd;
         }
         parametersActivity[27] = "Time(s):";
-
-
-
-
-
-
-
 
 
 
@@ -180,9 +194,15 @@ public class MainActivity extends AppCompatActivity  {
         chart.setDragEnabled(true);
         chart.setDrawGridBackground(false);
         chart.setPinchZoom(true);
+
+        chart.setHighlightPerTapEnabled(false);
+        chart.setHighlightPerDragEnabled(false);
+
+
+
         //data
 
-       // lineData.setValueTextColor(Color.WHITE);
+
 
 
         //chart
@@ -196,6 +216,8 @@ public class MainActivity extends AppCompatActivity  {
         XAxis xl = chart.getXAxis();
         xl.setDrawGridLines(false);
         xl.setAvoidFirstLastClipping(true);
+
+
 
 
         //Yaxis
@@ -214,14 +236,12 @@ public class MainActivity extends AppCompatActivity  {
         runButton = (Button) findViewById(R.id.buttonRun);
 
         runButton.setEnabled(false);
-
-
+       sendDataButton.setEnabled(false);
     }
-    private void removeDataSet() {
+    private void removeDataSet() { //clears the chart linedata
 
         chart.setData(new LineData());
         chart.setTouchEnabled(true);
-
         chart.notifyDataSetChanged();
         chart.invalidate();
     }
@@ -229,7 +249,7 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
-    public void pushcmd(String command) {
+    public void pushcmd(String command) { //method that writes commands to arduino
         usbService.write(command.getBytes());
     }
 
@@ -253,14 +273,30 @@ public class MainActivity extends AppCompatActivity  {
         textView.setText(" ");
         current_cycle.setText(" ");
         temperature.setText(" ");
+        if(cacheFile!=null)
+            cacheFile.delete();
     }
 
     public void onClickRun(View view) {
         List<Map<String, Object>> cmd = encodecmd(parametersActivity);//encode commands for the arduino
         tvSet(current_cycle,Integer.toString(1));
-        Run(cmd);
         controlButton.setEnabled(false);
-
+        runButton.setEnabled(false);
+        removeDataSet(); //clears the displayed data
+        current_cycle.setText(" ");
+        temperature.setText(" ");
+        ArrayList<Float> graph = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            if (!parametersActivity[i].isEmpty()) {
+                graph.add(Float.parseFloat(parametersActivity[i]));
+            }
+        }
+        showCyclingParameters(graph);
+        sendDataButton.setEnabled(false);
+        if(cacheFile!=null)
+            cacheFile.delete();
+        Run(cmd);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         runplot();
     }
     public void onClickStop(View view) {
@@ -270,7 +306,8 @@ public class MainActivity extends AppCompatActivity  {
         runButton.setEnabled(true);
     }
 
-    public void runplot() {
+
+    public void runplot() { //initial command that starts the loop in the handler
         {pushcmd("S\n");}
     }
 
@@ -283,7 +320,10 @@ public class MainActivity extends AppCompatActivity  {
     public void onResume() {
         super.onResume();
         setFilters();  // Start listening notifications from UsbService
-        startService(UsbService.class, usbConnection, null); // Start UsbService(if it was not started before) and Bind it
+        startService(UsbService.class, usbConnection, null);// Start UsbService(if it was not started before) and Bind it
+        if(cacheFile!=null) {
+            cacheFile.delete();
+        }
     }
 
     @Override
@@ -329,7 +369,7 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
     }
-    public void tvSet(TextView tv,CharSequence text) {
+    public void tvSet(TextView tv,CharSequence text) {//set text to a textview
         final TextView ftv = tv;
         final CharSequence ftext = text;
         runOnUiThread((new Runnable() {
@@ -341,54 +381,133 @@ public class MainActivity extends AppCompatActivity  {
     }
 
 
-    private void addDataSet(ArrayList<Float> time,ArrayList<Float> temp ) {
+    private void plotData(ArrayList<Float> time, ArrayList<Float> temp) { // plots the time and temperature data
+        removeDataSet();
+        LineData data = chart.getData();
+        if(data !=null) {
+            ILineDataSet set = data.getDataSetByIndex(0);
+            if (set == null) {
+                set = createSet(true); //reset x axis to skip labels
+                data.addDataSet(set); //plot all of the data
+            }
+            for(int i = 0; i<time.size();i++) {
+                String xentry = Float.toString(time.get(i));
+                data.addXValue("" + xentry);
+                data.addEntry(new Entry(temp.get(i), set.getEntryCount()), 0);
+            }
+            float xrange = 1200;
+            chart.notifyDataSetChanged();
+            chart.setVisibleXRangeMaximum(xrange);
+            chart.highlightValue(-1,0);
+            chart.moveViewToX(data.getXValCount());
+        }
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        sendDataButton.setEnabled(true);
+    }
+
+
+    private void showCyclingParameters(ArrayList<Float> temp ) { //plots the parameters on the graph
+        int pc=0; //indicates if there is a precool stage or not 0 means there is no precool stage and 1 means there is a precool stage
         LineData data = chart.getData();
             if (data != null) {
-
                 ILineDataSet set = data.getDataSetByIndex(0);
                 if (set == null) {
-                    set = createSet();
+                    set = createSet(false); //set no skipping x axis label
                     data.addDataSet(set);
+
+                    data.addXValue("");
+                    data.addEntry(new Entry(0f,set.getEntryCount()),0);
+                }
+                if (temp.size() % 2 != 0) { //we dont have a precooling stage because parameters come in pairs except for the precool stage
+                    pc++;
                 }
 
-               for(int i = 0; i<time.size();i++) {
-                   String xentry = Float.toString(time.get(i));
-                   data.addXValue("" + xentry);
-                   data.addEntry(new Entry(temp.get(i), set.getEntryCount()), 0);
-                   if(i>0){
-                   if(!temp.get(i).equals(temp.get(i-1))){
-                   tvSet(temperature,temp.get(i).toString());
-                       }
-                   }
-                   else{
-                       tvSet(temperature,temp.get(i).toString());
-                   }
-               }
+                for (int i = 0; i < temp.size(); i++) {
+                    if((i-pc) % 2  ==0) {
+                        data.addXValue(temp.get(i+1)+"sec");
+                        data.addEntry(new Entry(temp.get(i), set.getEntryCount()), 0);
+                    }
+                    else{
+                        if(!temp.get(i).equals(0f)) {
+                            if(i==0&&parametersActivity[27].equals("Time(s):")) { //for the precooling stage
+                                data.addXValue(temp.get(i) + "sec");
+                                data.addEntry(new Entry(21f, set.getEntryCount()), 0);
+                                data.addXValue("");
+                                data.addEntry(new Entry(21f, set.getEntryCount()), 0);
+
+                            } else if(i==0&&!parametersActivity[27].equals("Time(s):")) {
+                                data.addXValue("");
+                                data.addEntry(new Entry(temp.get(i), set.getEntryCount()), 0);
+                            }
+                            else{
+                                data.addXValue("");
+                                data.addEntry(new Entry(temp.get(i-1), set.getEntryCount()), 0);
+
+                            }
+                        }
+                    }
+
+                }
                 chart.notifyDataSetChanged();
-                chart.invalidate();
-
-                if(runButton.isEnabled()) {
-                    runButton.setEnabled(false);
-                }
+                chart.moveViewToX(data.getXValCount());
             }
     }
 
 
-    private LineDataSet createSet(){
+    private LineDataSet createSet(boolean skiplabels){ //creates a new linedataset
         LineDataSet set = new LineDataSet(null,"Temperatures");
+
+        if(!skiplabels){
+        chart.getXAxis().setLabelsToSkip(0);}
+        else{
+        chart.getXAxis().resetLabelsToSkip();}
+
         set.setCubicIntensity(0.2f);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
-        set.setColor(ColorTemplate.getHoloBlue());
-        set.setCircleColor(ColorTemplate.getHoloBlue());
+        set.setColor(Color.BLACK);
+        set.setCircleColor(Color.BLACK);
         set.setLineWidth(2f);
         set.setFillAlpha(65);
-        set.setFillColor(ColorTemplate.getHoloBlue());
+        set.setFillColor(Color.BLACK);
         set.setValueTextColor(Color.WHITE);
-        set.setValueTextSize(10f);
+        set.setValueTextSize(8f);
+        set.setDrawHorizontalHighlightIndicator(false);
+        set.setHighlightLineWidth(10f);
+        set.setHighLightColor(ColorTemplate.getHoloBlue());
 
 
         return set;
     }
+
+    public void onClickSendData(View view) {
+
+        String filename = FILENAME.getText().toString()+".csv";
+        String data = "Time (s)" + "," + "Temperature (C)"+"\n";
+        for (int i = 0;i<overallTime.size();i++){
+            data+= overallTime.get(i).toString()+"," +overallTemp.get(i).toString()+"\n";
+        }
+
+        try{
+            cacheFile = CacheFileUtils.createCachedFile(MainActivity.this,filename,data);
+            startActivity(CacheFileUtils.getSendEmailIntent(MainActivity.this,"","Thermocycler data", "See attached",filename));
+
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        catch (ActivityNotFoundException e) {
+            Toast.makeText(MainActivity.this,"Gmail is not available on this device.",
+                    Toast.LENGTH_SHORT).show();
+        }
+
+
+        overallTemp.clear();
+        overallTime.clear();
+
+
+
+    }
+
 
     /*
      * This handler will be passed to UsbService. Data received from serial port is displayed through this handler
@@ -396,15 +515,14 @@ public class MainActivity extends AppCompatActivity  {
     private static class MyHandler extends Handler {
         private final WeakReference<MainActivity> mActivity;
 
-       ArrayList<Float> dtime= new ArrayList<>(); //array of times
-        ArrayList<Float> dtemp = new ArrayList<>(); //array of temperatures
+
 
         public MyHandler(MainActivity activity) {
             mActivity = new WeakReference<>(activity);
         }
 
 
-        //Array slicing method
+        //Array slicing method similar to python's array [begin:end:spacing]
         public  float[] sliceArray(float[] arr, int begin,int end, int spacing) {
             int curr = begin;
             float[] newArr = new float [((end - begin - 1) / spacing) + 1];
@@ -415,27 +533,36 @@ public class MainActivity extends AppCompatActivity  {
             return newArr;
         }
 
-       public void update_data(float[] times,float[] temps) {
+       public void update_data(float[] times,float[] temps) { //filters through data received by the arduino
+           ArrayList<Float> updatedtemp = new ArrayList<>();
+          // ArrayList<Float> updatedtime = new ArrayList<>(); in case real time graphing is desired
            float dtime_recent; //Checks if data from the arduino is new
-           ArrayList<Float> updatedtimes = new ArrayList<>();
-           ArrayList<Float> updatedtemps = new ArrayList<>();
-           if (dtime.size() == 0) {
+           if (mActivity.get().overallTime.size() == 0) {
                dtime_recent = 0;
            } else {
-               dtime_recent = dtime.get(dtime.size() - 1);
+               dtime_recent = mActivity.get().overallTime.get(mActivity.get().overallTime.size() - 1);
            }
            for (int i = 0; i < times.length; i++) {
-               if (times[i] > dtime_recent) {
-                   dtime.add(times[i]);
-                   dtemp.add(temps[i]);
-                   updatedtimes.add(times[i]);
-                   updatedtemps.add(temps[i]);
+               if (times[i] > dtime_recent) { //makes sure that the data received is new data and not repetitive
+                   mActivity.get().overallTime.add(times[i]);
+                   mActivity.get().overallTemp.add(temps[i]);
+                   updatedtemp.add(temps[i]);
+                  // updatedtime.add(times[i]); for real time graphing
+                   if(updatedtemp.size()>1){
+                       if(updatedtemp.get(updatedtemp.size()-2)!=temps[i]){
+                           mActivity.get().tvSet(mActivity.get().temperature, Float.toString(temps[i]));
+                       }
+                   }
 
                }
            }
-           mActivity.get().addDataSet(updatedtimes,updatedtemps);
+         //  mActivity.get().plotData(updatedtime,updatedtemp); for real time graphing
+
+
+
 
        }
+
         public float [] logtimes(float[] log) { //slices the data from the arduino to retrieve time in seconds and milliseconds
             float[] log_time1 = sliceArray(log, 0,log.length, 3);
             float[] log_time2 = sliceArray(log, 1,log.length, 3);
@@ -447,6 +574,7 @@ public class MainActivity extends AppCompatActivity  {
         }
 
 
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -456,16 +584,17 @@ public class MainActivity extends AppCompatActivity  {
                      either a pointer  that indicates that it is still thermocycling or if it is the temperature/time
                      array to be graphed
                      */
-                    if (data.length<80) {
+                    if (data.length<100) { //cycling status
                         if (!data[1].equals(mActivity.get().current_cycle.getText().toString())) {
                             mActivity.get().current_cycle.setText(data[1]);
                         }
                         if (!data[0].equals("0")) { //if pointer isnt 0 prompt arduino to send data
                             mActivity.get().pushcmd("L\n");
-                        } else { //if pointer is zero, clear data
-                            dtime.clear();
-                            dtemp.clear();
-                            mActivity.get().current_cycle.setText("Done/ended");
+                            mActivity.get().highlight(data[2],data[3]); //highlighting method
+
+                        } else { //if pointer is zero, plot data
+                           mActivity.get().plotData(mActivity.get().overallTime,mActivity.get().overallTemp);
+                            mActivity.get().current_cycle.setText("done/end");
                             mActivity.get().controlButton.setEnabled(true);
                             mActivity.get().runButton.setEnabled(true);
                         }
@@ -529,12 +658,71 @@ public class MainActivity extends AppCompatActivity  {
 
         parametersActivity = data.getStringArrayExtra("values"); //Using the same fields allow
         //for a "Save" feature in parameters
-
-
         runButton.setEnabled(true);
         cycles.setText(parametersActivity[11]);
+        ArrayList<Float> graph = new ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            if (!parametersActivity[i].isEmpty()) {
+                graph.add(Float.parseFloat(parametersActivity[i]));
+            }
+
+        }
+        removeDataSet();
+        showCyclingParameters(graph);
+
+
 
     }
+
+
+    public void highlight(String type,String target) {
+        LineData a = chart.getData();
+        ILineDataSet b =a.getDataSets().get(0);
+        float ftarget = Float.parseFloat(target);
+
+        int test = 0;
+        int index = 0;
+
+
+        if(type.equals("O") | type.equals("K")) {
+            Highlight [] highlights = new Highlight[2];
+            for(int i= 0;i<b.getEntryCount();i++) {
+                if(ftarget== b.getYValForXIndex(i)){
+                   highlights[index] = new Highlight(i,0);
+                    index++;
+                }
+            }
+            chart.highlightValue(-1, 0);//removes the highlighted values
+            chart.highlightValues(highlights);
+        }
+
+        else{
+            Highlight h1 = null;
+            Highlight h2 = null;
+            while (test < 1) {
+                if (ftarget == b.getYValForXIndex(index)) {
+                    h1 = new Highlight(index, 0); //index is the data point index and 0 is the data set number
+                    //since there is only one data set, we are referring to the first data set
+                    h2 = new Highlight(index - 1, 0);
+                    test++;
+                }
+                index++;
+            }
+            chart.highlightValue(-1, 0); //removes the highlighted values
+            chart.highlightValues(new Highlight[]{h1, h2}); //adds the new highlight
+
+        }
+
+
+
+
+
+
+
+    }
+
+
+
 
     public List<Map<String, Object>> encodecmd(String[] parameters) {
         //Encode the paramaters into commands for arduino

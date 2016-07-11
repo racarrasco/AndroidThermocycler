@@ -26,4 +26,5 @@ dependencies {
     compile 'com.github.felHR85:UsbSerial:4.3'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.5'
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
+
 }

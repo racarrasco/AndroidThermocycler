@@ -65,6 +65,8 @@ float curtemp;
 int curtime;
 int curtimemil;
 
+char type;         // type ie. heating or cooling
+int target;        // target temp
 int curcycle;         // current cycle
 int cmdcnt;           // command count
 int cmdpointer;       // command pointer
@@ -148,7 +150,8 @@ void setup() {
     while (!Serial);     // will pause Zero, Leonardo, etc until serial console opens
   #endif
   //Serial.begin(9600);
-  Serial.begin(14400);
+  //Serial.begin(14400);
+ Serial.begin(19200);
   //Serial.begin(57600);
   //Serial.begin(115200);
   //Serial.begin(250000);
@@ -201,9 +204,10 @@ void loop() {
         case 'H': //heat
           turnoffFan();
           turnonLED(255);
+          type = 'H'; 
+          target = param1arr[cmdpointer];
           if (flag_debug) Serial.println(curtemp); 
           if (param1arr[cmdpointer] < curtemp) {
-            //Serial.println(Heating);
             event_flag=1;
             event_temp=getTemp(); 
             cmdpointer++;
@@ -212,6 +216,8 @@ void loop() {
         case 'C': //cool
           turnoffLED();
           turnonFan();
+          type ='C';
+          target = param1arr[cmdpointer];
           if (flag_debug) Serial.println(curtemp); 
           if (param1arr[cmdpointer] > curtemp) {
             //Serial.println(Cooling);
@@ -223,6 +229,8 @@ void loop() {
         case 'K': //precool
         turnoffLED();
         turnonFan();
+        type = 'K';
+        target = 21;
         if(precooltrig==0) { //start
           precoolt0= millis()/100;
           precooltrig=1;
@@ -234,7 +242,9 @@ void loop() {
           }
         break;
         case 'O': //control
-          //param1=Temp 2=Time 3=P 4=I 5=D 
+          //param1=Temp 2=Time 3=P 4=I 5=D
+          type = 'O';
+          target = param1arr[cmdpointer]; 
           if (pidtrig==0) { //start
             pidt0=millis()/100;
             pidtrig=1;
@@ -348,6 +358,9 @@ void serialEvent() {
         Serial.print(' ');
         Serial.print(curcycle);
         Serial.print(' ');
+        Serial.print(type);
+        Serial.print(' ');
+        Serial.print(target);
         Serial.println();
       }
       if (cmd == 'L') { //log

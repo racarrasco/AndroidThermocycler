@@ -43,7 +43,7 @@ import android.content.BroadcastReceiver;
         public static final int CTS_CHANGE = 1;
         public static final int DSR_CHANGE = 2;
         private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
-        private static final int BAUD_RATE = 14400; // BaudRate. Change this value if you need
+        private static final int BAUD_RATE = 19200; // BaudRate. Change this value if you need
         public static boolean SERVICE_CONNECTED = false;
 
         private IBinder binder = new UsbBinder();

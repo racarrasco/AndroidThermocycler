@@ -37,6 +37,31 @@
             android:onClick="onClickToControl"
             />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="20dp"
+            android:textSize="14sp"
+            android:text="Filename:"/>
+        <EditText
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:id="@+id/filenameEditText"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send data to email"
+            android:textAllCaps="false"
+            android:id="@+id/buttonSendData"
+            android:onClick="onClickSendData"/>
+    </LinearLayout>
 
     <com.github.mikephil.charting.charts.LineChart
         android:layout_width="match_parent"
@@ -67,6 +92,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/buttonRun"
                     android:text="@string/button_Run"
+                    android:textAllCaps="false"
                     android:onClick="onClickRun"
                     android:textColor="@color/colorStart"/>
                 <Button
@@ -74,12 +100,14 @@
                     android:layout_height="wrap_content"
                     android:id= "@+id/buttonStop"
                     android:text = "@string/button_Stop"
+                    android:textAllCaps="false"
                     android:textColor="@color/colorStop"
                     android:onClick="onClickStop"/>
                 <Button
                     android:layout_width="114dp"
                     android:layout_height="wrap_content"
                     android:text="@string/buttonClear"
+                    android:textAllCaps="false"
                     android:id="@+id/buttonClear"
                     android:onClick="onClickClear"
                     />
@@ -97,15 +125,10 @@
                     android:paddingBottom="5dp"
                     android:textStyle="bold"/>
                 <TextView
-                    android:layout_width="80dp"
+                    android:layout_width="40dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/editTextNumberOfCycles"
                     />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -113,10 +136,14 @@
                     android:text="Current Cycle : "
                     android:textStyle="bold"/>
                 <TextView
-                    android:layout_width="80dp"
+                    android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/textViewCurrentCycle"/>
             </LinearLayout>
+
+
+
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -132,12 +159,14 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/textViewCurrentTemperature"/>
             </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView"/>
 
         </LinearLayout>
+
 
     </ScrollView>
 
