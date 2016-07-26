@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidthermocycler;
+package com.example.rigo_carrasco.PhotonicPCR;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -23,6 +23,7 @@ public class ParametersScreen extends AppCompatActivity {
     Button setParametersButton;
 
     ToggleButton timeTempToggle;
+
 
 
 
@@ -141,6 +142,7 @@ public class ParametersScreen extends AppCompatActivity {
                 case R.id.switchFirstPreheat:
                     if (checked) {
                         setUiEnabled(true,1);
+
                     }
                     else {
                         setUiEnabled(false, 1);
@@ -150,6 +152,7 @@ public class ParametersScreen extends AppCompatActivity {
                 case R.id.switchSecondPreheat:
                     if(checked){
                         setUiEnabled(true,3);
+
                     }
                     else{
                         setUiEnabled(false,3);
@@ -159,6 +162,7 @@ public class ParametersScreen extends AppCompatActivity {
                 case R.id.switchExtension:
                     if (checked) {
                         setUiEnabled(true,9);
+
                     }
                     else{
                         setUiEnabled(false,9);
