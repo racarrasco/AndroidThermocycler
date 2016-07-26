@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidthermocycler;
+package com.example.rigo_carrasco.PhotonicPCR;
 
 import org.junit.Test;
 

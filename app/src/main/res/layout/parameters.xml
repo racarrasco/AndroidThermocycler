@@ -7,7 +7,7 @@
     android:focusable="true"
     android:focusableInTouchMode="true"
 
-    tools:context="com.example.rigo_carrasco.androidthermocycler.MainActivity"
+    tools:context="com.example.rigo_carrasco.PhotonicPCR.MainActivity"
     >
 
     <LinearLayout

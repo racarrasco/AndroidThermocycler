@@ -46,7 +46,7 @@ Adafruit_MAX31855 thermocouple(MAXCS);
 // Fan
 #define FAN_PIN 7
 #define CMD_LEN 40
-#define PROG_LEN 60   // program buffer length
+#define PROG_LEN 15   // program buffer length
 #define DATAQ_LEN 100  // data queue length
 char flag_debug;           // debug mode on
 int ibuf[CMD_LEN];      // for incoming serial data
@@ -75,7 +75,10 @@ int cmdtrig;          // command trig
 char pidtrig=0;       // pid trigger
 int pidt0;  // pid start time
 char precooltrig=0; //precool trigger
-int precoolt0; //precool start time
+float precoolt0 = 0.0; //precool start time
+float precooltime = 0.0; //precool total time
+float timeelapsed;
+float previoustemp;
 char event_flag=0;    // event logged?
 float event_temp;      // saved temperature
 
@@ -150,8 +153,8 @@ void setup() {
     while (!Serial);     // will pause Zero, Leonardo, etc until serial console opens
   #endif
   //Serial.begin(9600);
-  //Serial.begin(14400);
- Serial.begin(19200);
+  Serial.begin(14400);
+ //Serial.begin(19200);
   //Serial.begin(57600);
   //Serial.begin(115200);
   //Serial.begin(250000);
@@ -184,6 +187,7 @@ void loop() {
         case 'R': //reset
           turnoffLED();
           turnoffFan();
+          precooltime = 0.0;
           cmdpointer++;
           for (int i=0; i<DATAQ_LEN; i++) { //reset queue and time info
             timearr[i]=0;
@@ -230,14 +234,15 @@ void loop() {
         turnoffLED();
         turnonFan();
         type = 'K';
-        target = 21;
+        target = 0;
         if(precooltrig==0) { //start
           precoolt0= millis()/100;
           precooltrig=1;
         } else{ 
           if(millis()/100-precoolt0>param1arr[cmdpointer]*10){ //cool for specified time
             precooltrig=0;
-            cmdpointer++; 
+            cmdpointer++;
+            precooltime = millis()/1000 - precoolt0/10;
             } 
           }
         break;
@@ -245,6 +250,7 @@ void loop() {
           //param1=Temp 2=Time 3=P 4=I 5=D
           type = 'O';
           target = param1arr[cmdpointer]; 
+          turnoffFan();
           if (pidtrig==0) { //start
             pidt0=millis()/100;
             pidtrig=1;
@@ -331,7 +337,8 @@ void serialEvent() {
           event_flag=0;
           Serial.println(event_temp); 
         } else {
-          Serial.println(curtemp); 
+          getTemp();
+          Serial.println(getTemp()); 
         }
       }
       if (cmd == 'P') {// command stop
@@ -361,10 +368,12 @@ void serialEvent() {
         Serial.print(type);
         Serial.print(' ');
         Serial.print(target);
+        Serial.print(' ');
+        Serial.print(precooltime);
         Serial.println();
       }
       if (cmd == 'L') { //log
-        for (int i=DATAQ_LEN-50; i<DATAQ_LEN; i++) {
+        for (int i=DATAQ_LEN-40; i<DATAQ_LEN; i++) {
           Serial.print(timearr[i]);
           Serial.print(' ');
           Serial.print(timemilarr[i]);
@@ -388,8 +397,10 @@ void serialEvent() {
           Serial.print(' ');
           Serial.print(param4arr[i]); 
           Serial.print(' ');
-          Serial.println(param5arr[i]); 
+          Serial.print(param5arr[i]); 
+          Serial.print(' ');
         }
+         Serial.println();
       }
       if (cmd == 'X') { //excute command
          //cyclepointer=0;

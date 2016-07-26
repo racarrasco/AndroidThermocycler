@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidthermocycler;
+package com.example.rigo_carrasco.PhotonicPCR;
 
 
 import android.content.ActivityNotFoundException;
@@ -30,15 +30,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
+
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
-import com.github.mikephil.charting.highlight.Highlight;
-
-
-
-
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
@@ -51,13 +46,18 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity  {
@@ -95,11 +95,12 @@ public class MainActivity extends AppCompatActivity  {
     private TextView textView; //notifications from the app
     String[] parametersActivity; //parameters for thermocycling
     Button clearButton, runButton,controlButton, sendDataButton;
-    TextView cycles,temperature,current_cycle;
+    TextView cycles,temperature,current_cycle,timeElapsed;
     EditText FILENAME;
     ArrayList<Float> overallTemp = new ArrayList<>();
     ArrayList<Float> overallTime = new ArrayList<>();
-    File cacheFile = null;
+    File internalFile = null;
+    String Body = null;
 
 
 
@@ -145,6 +146,7 @@ public class MainActivity extends AppCompatActivity  {
         controlButton = (Button) findViewById(R.id.buttonToControl);
         sendDataButton = (Button) findViewById(R.id.buttonSendData);
         FILENAME = (EditText) findViewById(R.id.filenameEditText);
+        timeElapsed = (TextView) findViewById(R.id.timeElapsedTextView);
 
 
 
@@ -200,6 +202,7 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
+
         //data
 
 
@@ -207,8 +210,7 @@ public class MainActivity extends AppCompatActivity  {
 
         //chart
        chart.setData(new LineData());
-       Legend leg = chart.getLegend();
-        leg.setPosition(Legend.LegendPosition.BELOW_CHART_LEFT);
+
 
 
 
@@ -216,6 +218,8 @@ public class MainActivity extends AppCompatActivity  {
         XAxis xl = chart.getXAxis();
         xl.setDrawGridLines(false);
         xl.setAvoidFirstLastClipping(true);
+
+
 
 
 
@@ -243,7 +247,7 @@ public class MainActivity extends AppCompatActivity  {
         chart.setData(new LineData());
         chart.setTouchEnabled(true);
         chart.notifyDataSetChanged();
-        chart.invalidate();
+        chart.fitScreen();
     }
 
 
@@ -273,18 +277,26 @@ public class MainActivity extends AppCompatActivity  {
         textView.setText(" ");
         current_cycle.setText(" ");
         temperature.setText(" ");
-        if(cacheFile!=null)
-            cacheFile.delete();
+        timeElapsed.setText(" ");
+        overallTime.clear();
+        overallTemp.clear();
+        if(internalFile!=null)
+            internalFile.delete();
     }
+
 
     public void onClickRun(View view) {
         List<Map<String, Object>> cmd = encodecmd(parametersActivity);//encode commands for the arduino
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm",Locale.US);
+
+        Body = "\nPCR started on: " + DateFormat.getDateTimeInstance().format(new Date());
         tvSet(current_cycle,Integer.toString(1));
         controlButton.setEnabled(false);
         runButton.setEnabled(false);
         removeDataSet(); //clears the displayed data
         current_cycle.setText(" ");
         temperature.setText(" ");
+        clearButton.setEnabled(false);
         ArrayList<Float> graph = new ArrayList<>();
         for (int i = 0; i < 11; i++) {
             if (!parametersActivity[i].isEmpty()) {
@@ -292,16 +304,20 @@ public class MainActivity extends AppCompatActivity  {
             }
         }
         showCyclingParameters(graph);
-        sendDataButton.setEnabled(false);
-        if(cacheFile!=null)
-            cacheFile.delete();
         Run(cmd);
+        sendDataButton.setEnabled(false);
+        if(internalFile!=null)
+            internalFile.delete();
+        cycles.setText(parametersActivity[11]);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         runplot();
+
     }
     public void onClickStop(View view) {
         pushcmd("P\n");
+        pushcmd("R\n");
         tvAppend(textView,"\nStopping");
+        clearButton.setEnabled(true);
         controlButton.setEnabled(true);
         runButton.setEnabled(true);
     }
@@ -321,9 +337,6 @@ public class MainActivity extends AppCompatActivity  {
         super.onResume();
         setFilters();  // Start listening notifications from UsbService
         startService(UsbService.class, usbConnection, null);// Start UsbService(if it was not started before) and Bind it
-        if(cacheFile!=null) {
-            cacheFile.delete();
-        }
     }
 
     @Override
@@ -369,6 +382,7 @@ public class MainActivity extends AppCompatActivity  {
             }
         });
     }
+
     public void tvSet(TextView tv,CharSequence text) {//set text to a textview
         final TextView ftv = tv;
         final CharSequence ftext = text;
@@ -420,36 +434,41 @@ public class MainActivity extends AppCompatActivity  {
                 }
                 if (temp.size() % 2 != 0) { //we dont have a precooling stage because parameters come in pairs except for the precool stage
                     pc++;
-                }
-
-                for (int i = 0; i < temp.size(); i++) {
-                    if((i-pc) % 2  ==0) {
-                        data.addXValue(temp.get(i+1)+"sec");
-                        data.addEntry(new Entry(temp.get(i), set.getEntryCount()), 0);
+                    if(parametersActivity[27].equals("Time(s):")){
+                        data.addEntry(new Entry(0f, data.getXValCount()),0);
+                        data.addXValue(temp.get(0)+"sec");
                     }
                     else{
-                        if(!temp.get(i).equals(0f)) {
-                            if(i==0&&parametersActivity[27].equals("Time(s):")) { //for the precooling stage
-                                data.addXValue(temp.get(i) + "sec");
-                                data.addEntry(new Entry(21f, set.getEntryCount()), 0);
-                                data.addXValue("");
-                                data.addEntry(new Entry(21f, set.getEntryCount()), 0);
-
-                            } else if(i==0&&!parametersActivity[27].equals("Time(s):")) {
-                                data.addXValue("");
-                                data.addEntry(new Entry(temp.get(i), set.getEntryCount()), 0);
-                            }
-                            else{
-                                data.addXValue("");
-                                data.addEntry(new Entry(temp.get(i-1), set.getEntryCount()), 0);
-
-                            }
-                        }
+                        data.addEntry( new Entry(temp.get(0),data.getXValCount()),0);
+                        data.addXValue("0.0sec");
                     }
-
                 }
+                for(int i=pc; i<temp.size();i+=2) {
+                    data.addDataSet(createSet(false));
+                    int lastset= data.getDataSets().size()-1;
+                    Entry old_value; //the overlapping value
+                    if(i>1) //it will get the last entry and overlap that entry
+                        old_value = new Entry(temp.get(i - 2), data.getXValCount() - 1);
+                    else if(pc==1&&!parametersActivity[27].equals("Time(s):")) // if precooling is to a certain temperature
+                        old_value = new Entry (temp.get(0),data.getXValCount()-1);
+                    else
+                        old_value = new Entry(0f,data.getXValCount()-1); // if there is no precool stage and we are looking at the first pair of parameters
+                    Entry new_value = new Entry(temp.get(i),data.getXValCount()); //the new value
+                    Entry extra_value = new Entry(temp.get(i),data.getXValCount()+1); //the value that will show if we need to maintain a certain temperature for a certain amount of time
+
+                    data.addEntry(old_value,lastset);
+                    data.addXValue(temp.get(i+1)+"sec");
+                    data.addEntry(new_value,lastset);
+                    if(temp.get(i+1)!=0){
+                        data.addDataSet(createSet(false));
+                        data.addEntry(new_value,lastset+1);
+                        data.addXValue(" ");
+                        data.addEntry(extra_value,lastset+1);
+                    }
+                }
+
                 chart.notifyDataSetChanged();
-                chart.moveViewToX(data.getXValCount());
+                chart.invalidate();
             }
     }
 
@@ -458,9 +477,11 @@ public class MainActivity extends AppCompatActivity  {
         LineDataSet set = new LineDataSet(null,"Temperatures");
 
         if(!skiplabels){
-        chart.getXAxis().setLabelsToSkip(0);}
+        chart.getXAxis().setLabelsToSkip(0);
+        chart.getLegend().setEnabled(false);}
         else{
-        chart.getXAxis().resetLabelsToSkip();}
+        chart.getXAxis().resetLabelsToSkip();
+        chart.getLegend().setEnabled(true);}
 
         set.setCubicIntensity(0.2f);
         set.setAxisDependency(YAxis.AxisDependency.LEFT);
@@ -474,6 +495,8 @@ public class MainActivity extends AppCompatActivity  {
         set.setDrawHorizontalHighlightIndicator(false);
         set.setHighlightLineWidth(10f);
         set.setHighLightColor(ColorTemplate.getHoloBlue());
+        set.setFillColor(Color.RED);
+        chart.zoom(.3f,.3f,0f,0f);
 
 
         return set;
@@ -488,8 +511,8 @@ public class MainActivity extends AppCompatActivity  {
         }
 
         try{
-            cacheFile = CacheFileUtils.createCachedFile(MainActivity.this,filename,data);
-            startActivity(CacheFileUtils.getSendEmailIntent(MainActivity.this,"","Thermocycler data", "See attached",filename));
+            internalFile = InternalFileUtils.createInternalFile(MainActivity.this,filename,data);
+            startActivity(InternalFileUtils.getSendEmailIntent(MainActivity.this,"","Thermocycler data",Body,filename));
 
         }catch (IOException e) {
             e.printStackTrace();
@@ -503,9 +526,6 @@ public class MainActivity extends AppCompatActivity  {
 
         overallTemp.clear();
         overallTime.clear();
-
-
-
     }
 
 
@@ -514,8 +534,7 @@ public class MainActivity extends AppCompatActivity  {
      */
     private static class MyHandler extends Handler {
         private final WeakReference<MainActivity> mActivity;
-
-
+        float precooltime;
 
         public MyHandler(MainActivity activity) {
             mActivity = new WeakReference<>(activity);
@@ -547,20 +566,20 @@ public class MainActivity extends AppCompatActivity  {
                    mActivity.get().overallTime.add(times[i]);
                    mActivity.get().overallTemp.add(temps[i]);
                    updatedtemp.add(temps[i]);
-                  // updatedtime.add(times[i]); for real time graphing
                    if(updatedtemp.size()>1){
                        if(updatedtemp.get(updatedtemp.size()-2)!=temps[i]){
                            mActivity.get().tvSet(mActivity.get().temperature, Float.toString(temps[i]));
+
+                           mActivity.get().timeElapsed.setText(String.format(Locale.US,"%.2f",times[i]-precooltime));
                        }
+                   }
+                   else{
+                       mActivity.get().tvSet(mActivity.get().temperature, Float.toString(updatedtemp.get(0)));
+                       mActivity.get().timeElapsed.setText(String.format(Locale.US,"%.2f",times[i]-precooltime));
                    }
 
                }
            }
-         //  mActivity.get().plotData(updatedtime,updatedtemp); for real time graphing
-
-
-
-
        }
 
         public float [] logtimes(float[] log) { //slices the data from the arduino to retrieve time in seconds and milliseconds
@@ -585,16 +604,16 @@ public class MainActivity extends AppCompatActivity  {
                      array to be graphed
                      */
                     if (data.length<100) { //cycling status
-                        if (!data[1].equals(mActivity.get().current_cycle.getText().toString())) {
-                            mActivity.get().current_cycle.setText(data[1]);
-                        }
                         if (!data[0].equals("0")) { //if pointer isnt 0 prompt arduino to send data
-                            mActivity.get().pushcmd("L\n");
+                            mActivity.get().current_cycle.setText(data[1]);
                             mActivity.get().highlight(data[2],data[3]); //highlighting method
-
+                            precooltime = Float.parseFloat(data[4]);
+                            mActivity.get().pushcmd("L\n");
                         } else { //if pointer is zero, plot data
-                           mActivity.get().plotData(mActivity.get().overallTime,mActivity.get().overallTemp);
+                            mActivity.get().plotData(mActivity.get().overallTime,mActivity.get().overallTemp);
+                            precooltime = Float.parseFloat(data[4]);
                             mActivity.get().current_cycle.setText("done/end");
+                            mActivity.get().clearButton.setEnabled(true);
                             mActivity.get().controlButton.setEnabled(true);
                             mActivity.get().runButton.setEnabled(true);
                         }
@@ -654,12 +673,9 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) { //sets the paramaters once the users goes back to this screen
         super.onActivityResult(requestCode, resultCode, data);
-
-
         parametersActivity = data.getStringArrayExtra("values"); //Using the same fields allow
         //for a "Save" feature in parameters
         runButton.setEnabled(true);
-        cycles.setText(parametersActivity[11]);
         ArrayList<Float> graph = new ArrayList<>();
         for (int i = 0; i < 11; i++) {
             if (!parametersActivity[i].isEmpty()) {
@@ -669,57 +685,54 @@ public class MainActivity extends AppCompatActivity  {
         }
         removeDataSet();
         showCyclingParameters(graph);
-
-
-
     }
-
 
     public void highlight(String type,String target) {
         LineData a = chart.getData();
-        ILineDataSet b =a.getDataSets().get(0);
-        float ftarget = Float.parseFloat(target);
-
-        int test = 0;
-        int index = 0;
-
-
+        List<ILineDataSet> sets =a.getDataSets(); //data set
+        float ftarget = Float.parseFloat(target); //the target temperature
         if(type.equals("O") | type.equals("K")) {
-            Highlight [] highlights = new Highlight[2];
-            for(int i= 0;i<b.getEntryCount();i++) {
-                if(ftarget== b.getYValForXIndex(i)){
-                   highlights[index] = new Highlight(i,0);
-                    index++;
+            for(int i= 0;i<sets.size();i++) {
+                for(int j =0;j<a.getXValCount();j++) {
+                    if (ftarget == sets.get(i).getYValForXIndex(j) && ftarget == sets.get(i).getYValForXIndex(j + 1)) {//the target data
+                        if (type.equals("O")) {
+                            sets.get(i - 1).setDrawFilled(false);
+                        }
+                        sets.get(i).setDrawFilled(true);
+                       // tvAppend(textView,"kooling");
+                        break;
+                    }
                 }
             }
-            chart.highlightValue(-1, 0);//removes the highlighted values
-            chart.highlightValues(highlights);
         }
 
         else{
-            Highlight h1 = null;
-            Highlight h2 = null;
-            while (test < 1) {
-                if (ftarget == b.getYValForXIndex(index)) {
-                    h1 = new Highlight(index, 0); //index is the data point index and 0 is the data set number
-                    //since there is only one data set, we are referring to the first data set
-                    h2 = new Highlight(index - 1, 0);
-                    test++;
-                }
-                index++;
+            if(type.equals("H"))
+                sets.get(sets.size()-1).setDrawFilled(false);
+            for (int i =0;i<sets.size();i++) {
+                int j= -1;
+                 do{
+                     j++;
+                     if(j==a.getXValCount())
+                         break;
+                    if (ftarget == sets.get(i).getYValForXIndex(j+1) && ftarget != sets.get(i).getYValForXIndex(j)) {
+                        if(i!=0)
+                        sets.get(i - 1).setDrawFilled(false);
+                        sets.get(i).setDrawFilled(true);
+                    } else {
+                        sets.get(i).setDrawFilled(false);
+                    }
+
+                }while (sets.get(i).getYValForXIndex(j+1)!=ftarget);
+                if (ftarget == sets.get(i).getYValForXIndex(j+1) && ftarget != sets.get(i).getYValForXIndex(j))
+                    break;
+
             }
-            chart.highlightValue(-1, 0); //removes the highlighted values
-            chart.highlightValues(new Highlight[]{h1, h2}); //adds the new highlight
 
         }
-
-
-
-
-
-
-
+        chart.invalidate();
     }
+
 
 
 
@@ -735,7 +748,6 @@ public class MainActivity extends AppCompatActivity  {
             } else
                 encoded[i] = Integer.parseInt(parameters[i]);
         }
-
         List<Map<String, Object>> command = new ArrayList<>();
 
         Map<String, Object> map1OfList = new HashMap<>();
@@ -873,29 +885,71 @@ public class MainActivity extends AppCompatActivity  {
 
 
 
-    public void Run(List<Map<String, Object>> cmd) { //this sends the commands to the arduino
-        pushcmd( "R\n");
-        for (int i = 0; i < cmd.size(); i++) {
-            if (cmd.get(i).get("type").equals("reset")) {
-                pushcmd("RC\n");
-            }
-            if (cmd.get(i).get("type").equals("end")) {
-                pushcmd("EC\n");
-            } else if (cmd.get(i).get("type").equals("loopback")) {
-                pushcmd(encnum(cmd.get(i).get("init")) + encnum(cmd.get(i).get("cycle")) + encnum(cmd.get(i).get("amount")) + "LC\n");
-            }else if(cmd.get(i).get("type").equals("precool")) {
-                pushcmd(encnum(cmd.get(i).get("time"))+"KC\n");
-            } else if (cmd.get(i).get("type").equals("heat")) {
-                pushcmd(encnum(cmd.get(i).get("target")) + "HC\n");
-            } else if (cmd.get(i).get("type").equals("cool")) {
-                pushcmd(encnum(cmd.get(i).get("target")) + "CC\n");
-            } else if (cmd.get(i).get("type").equals("cont")) {
-                pushcmd( encnum(cmd.get(i).get("kd"))
-                        + encnum(cmd.get(i).get("ki")) + encnum(cmd.get(i).get("kp")) +
-                        encnum(cmd.get(i).get("time")) + encnum(cmd.get(i).get("target")) + "OC\n");
-            }
-        }
-       pushcmd("X\n");
+    public void Run(final List<Map<String, Object>> cmd) {//this sends the commands to the arduino
+        pushcmd( "R\n");//The wait commands allow the arduino to process and store the data for thermocycling
+                for (int i = 0; i < cmd.size(); i++) {
+                    if (cmd.get(i).get("type").equals("reset")) {
+                        pushcmd("RC\n");
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(130);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (cmd.get(i).get("type").equals("end")) {
+                        pushcmd("EC\n");
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(120);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (cmd.get(i).get("type").equals("loopback")) {
+                        pushcmd(encnum(cmd.get(i).get("init")) + encnum(cmd.get(i).get("cycle")) + encnum(cmd.get(i).get("amount")) + "LC\n");
+                        Body+= "\nRepeat last " + cmd.get(i).get("amount") + " commands for " + cmd.get(i).get("cycle") + " cycles ";
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(120);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (cmd.get(i).get("type").equals("precool")) {
+                        Body+= "\nPrecool for: " + cmd.get(i).get("time").toString() + " Seconds";
+                        pushcmd(encnum(cmd.get(i).get("time")) + "KC\n");
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(120);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (cmd.get(i).get("type").equals("heat")) {
+                        Body+="\nHeat to: " +cmd.get(i).get("target").toString() +" degrees Celsius";
+                        pushcmd(encnum(cmd.get(i).get("target")) + "HC\n");
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(120);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (cmd.get(i).get("type").equals("cool")) {
+                        pushcmd(encnum(cmd.get(i).get("target")) + "CC\n");
+                        Body+="\nCool to: "+ cmd.get(i).get("target").toString() +" degrees Celsius";
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(120);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (cmd.get(i).get("type").equals("cont")) {
+                        Body+="\n      and maintain for " + cmd.get(i).get("time").toString() +" Seconds";
+                        pushcmd(encnum(cmd.get(i).get("kd"))
+                                + encnum(cmd.get(i).get("ki")) + encnum(cmd.get(i).get("kp")) +
+                                encnum(cmd.get(i).get("time")) + encnum(cmd.get(i).get("target")) + "OC\n");
+                        try {
+                            TimeUnit.MILLISECONDS.sleep(180);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+         pushcmd("X\n");
+
     }
 
 

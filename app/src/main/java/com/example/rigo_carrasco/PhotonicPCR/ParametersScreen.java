@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidthermocycler;
+package com.example.rigo_carrasco.PhotonicPCR;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -23,6 +23,7 @@ public class ParametersScreen extends AppCompatActivity {
     Button setParametersButton;
 
     ToggleButton timeTempToggle;
+
 
 
 

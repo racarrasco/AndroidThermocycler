@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.rigo_carrasco.androidthermocycler">
-
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    package="com.example.rigo_carrasco.PhotonicPCR">
 
 
     <application
@@ -12,7 +9,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.example.rigo_carrasco.androidthermocycler.MainActivity"
+        <activity android:name="com.example.rigo_carrasco.PhotonicPCR.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,24 +22,24 @@
                 android:resource="@xml/device_filter" />
         </activity>
         <provider
-            android:name=".CachedFileProvider"
-            android:authorities="com.example.rigo_carrasco.androidthermocycler.provider"
+            android:name="com.example.rigo_carrasco.PhotonicPCR.InternalFileProvider"
+            android:authorities="com.example.rigo_carrasco.PhotonicPCR.provider"
             android:exported="true"
             android:grantUriPermissions="true"
             />
 
         <service
-            android:name="com.example.rigo_carrasco.androidthermocycler.UsbService"
+            android:name="com.example.rigo_carrasco.PhotonicPCR.UsbService"
             android:enabled="true">
         </service>
 
-        <activity android:name="com.example.rigo_carrasco.androidthermocycler.ParametersScreen"
+        <activity android:name="com.example.rigo_carrasco.PhotonicPCR.ParametersScreen"
             android:label="Set Parameters"
             android:theme="@style/AppTheme"/>
-        <activity android:name="com.example.rigo_carrasco.androidthermocycler.Controls"
+        <activity android:name="com.example.rigo_carrasco.PhotonicPCR.Controls"
             android:label="Controls"
             android:theme="@style/AppTheme"/>
-        <activity android:name="com.example.rigo_carrasco.androidthermocycler.PID"
+        <activity android:name="com.example.rigo_carrasco.PhotonicPCR.PID"
             android:label="Set PID"
             android:theme="@style/AppTheme"/>
 

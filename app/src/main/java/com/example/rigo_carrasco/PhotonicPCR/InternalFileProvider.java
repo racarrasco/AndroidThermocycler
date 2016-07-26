@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidthermocycler;
+package com.example.rigo_carrasco.PhotonicPCR;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,10 +16,10 @@ import android.os.ParcelFileDescriptor;
 /**
  * Created by Rigo_Carrasco on 7/11/2016.
  */
-public class CachedFileProvider extends ContentProvider {
+public class InternalFileProvider extends ContentProvider {
 
-    private static final String CLASS_NAME = "CacheFileProvider";
-    public static final String AUTHORITY = "com.example.rigo_carrasco.androidthermocycler.provider";
+
+    public static final String AUTHORITY = "com.example.rigo_carrasco.PhotonicPCR.provider";
     private UriMatcher uriMatcher;
 
     @Override
@@ -35,7 +35,7 @@ public class CachedFileProvider extends ContentProvider {
 
         switch (uriMatcher.match(uri)) {
             case 1:
-               String fileLocation = getContext().getCacheDir()+ File.separator +
+               String fileLocation = getContext().getFilesDir()+ File.separator +
                        uri.getLastPathSegment();
 
                 ParcelFileDescriptor pfd = ParcelFileDescriptor.open(new File(fileLocation),

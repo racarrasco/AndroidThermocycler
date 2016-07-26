@@ -1,4 +1,4 @@
-package com.example.rigo_carrasco.androidthermocycler;
+package com.example.rigo_carrasco.PhotonicPCR;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,23 +16,23 @@ import java.io.PrintWriter;
  * Created by Rigo_Carrasco on 7/11/2016.
  * creates a cached file with the time and temperature data, and when called, opens mail
  */
-public class CacheFileUtils {
+public class InternalFileUtils {
 
 
-    public static File createCachedFile(Context context, String fileName,
+    public static File createInternalFile(Context context, String fileName,
                                         String content) throws IOException{
-        File cacheFile = new File(context.getCacheDir()+
+        File file = new File(context.getFilesDir()+
                 File.separator+fileName);
-        cacheFile.createNewFile();
+        file.createNewFile();
 
-        FileOutputStream fos = new FileOutputStream(cacheFile);
+        FileOutputStream fos = new FileOutputStream(file);
         OutputStreamWriter osw = new OutputStreamWriter(fos,"UTF8");
         PrintWriter pw = new PrintWriter(osw);
 
         pw.println(content);
         pw.flush();
         pw.close();
-        return cacheFile;
+        return file;
 
 
     }
@@ -54,7 +54,7 @@ public class CacheFileUtils {
 
         emailIntent.putExtra(Intent.EXTRA_TEXT,body);
 
-        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://"+ CachedFileProvider.AUTHORITY + "/"
+        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("content://"+ InternalFileProvider.AUTHORITY + "/"
                                                              +filename));
         return emailIntent;
     }

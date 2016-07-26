@@ -48,7 +48,7 @@
             android:layout_height="match_parent"
             android:paddingTop="20dp"
             android:textSize="14sp"
-            android:text="Filename:"/>
+            android:text="Patient id:"/>
         <EditText
             android:layout_width="150dp"
             android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
 
     <com.github.mikephil.charting.charts.LineChart
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="275dp"
         android:id="@+id/lineChart" />
 
     <ScrollView
@@ -143,7 +143,6 @@
 
 
 
-
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -158,7 +157,29 @@
                     android:layout_width="80dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/textViewCurrentTemperature"/>
+
             </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
+                    android:text="@string/cycle_time_elapsed_s"
+                    android:textStyle="bold"/>
+                <TextView
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:id= "@+id/timeElapsedTextView"/>
+
+
+
+            </LinearLayout>
+
+
+
 
             <TextView
                 android:layout_width="match_parent"

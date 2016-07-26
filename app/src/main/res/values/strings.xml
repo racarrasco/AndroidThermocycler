@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Android Thermocycler</string>
+    <string name="app_name">Photonic PCR Thermocycler</string>
     <string name="buttonTemp">Temp</string>
     <string name="buttonClear">Clear</string>
     <string name="buttonParameters">Par.</string>
@@ -30,7 +30,8 @@
     <string name="pre_cool_Text_View">Pre-cool</string>
     <string name="button_fan_on_text">Fan on</string>
     <string name="button_fan_off_text">Fan off</string>
-    <string name="current_temperature_textview">Current Temperature :</string>
+    <string name="current_temperature_textview">Current Temperature (C):</string>
+    <string name="cycle_time_elapsed_s">Time Elapsed (s):</string>
 
 
 </resources>
